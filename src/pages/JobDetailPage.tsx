@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { AppLayout } from '@/components/layout/AppLayout'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -69,25 +68,22 @@ export function JobDetailPage() {
 
   if (!jobId) {
     return (
-      <AppLayout>
-        <PageContainer>
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-semibold text-destructive">Invalid Job ID</h1>
-            <p className="text-muted-foreground mt-2">The job ID provided is not valid.</p>
-            <Button onClick={handleBack} className="mt-4">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Jobs
-            </Button>
-          </div>
-        </PageContainer>
-      </AppLayout>
+      <PageContainer>
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-semibold text-destructive">Invalid Job ID</h1>
+          <p className="text-muted-foreground mt-2">The job ID provided is not valid.</p>
+          <Button onClick={handleBack} className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Jobs
+          </Button>
+        </div>
+      </PageContainer>
     )
   }
 
   if (error) {
     return (
-      <AppLayout>
-        <PageContainer>
+      <PageContainer>
           <div className="text-center py-12">
             <h1 className="text-2xl font-semibold text-destructive">Error Loading Job</h1>
             <p className="text-muted-foreground mt-2">
@@ -103,24 +99,20 @@ export function JobDetailPage() {
               </Button>
             </div>
           </div>
-        </PageContainer>
-      </AppLayout>
+      </PageContainer>
     )
   }
 
   if (isLoading || !job) {
     return (
-      <AppLayout>
-        <PageContainer>
+      <PageContainer>
           <JobDetailSkeleton />
-        </PageContainer>
-      </AppLayout>
+      </PageContainer>
     )
   }
 
   return (
-    <AppLayout>
-      <PageContainer>
+    <PageContainer>
         <div className="space-y-6">
           {/* Header with Back Button */}
           <div className="flex items-center gap-4">
@@ -278,7 +270,6 @@ export function JobDetailPage() {
           job={job}
           loading={updateJobMutation.isPending}
         />
-      </PageContainer>
-    </AppLayout>
+    </PageContainer>
   )
 }

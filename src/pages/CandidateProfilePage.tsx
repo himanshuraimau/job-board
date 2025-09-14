@@ -5,9 +5,12 @@ import { CandidateProfile } from '@/components/features/candidates'
 import { Button } from '@/components/ui/button'
 import { 
   useCandidateById,
+  useCandidatesData,
   useCandidatesLoading,
   useCandidatesError,
-  useCandidatesActions
+  useFetchCandidates,
+  useMoveStage,
+  useAddNote
 } from '@/stores/candidates'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 
@@ -16,16 +19,19 @@ export function CandidateProfilePage() {
   const navigate = useNavigate()
   
   const candidate = useCandidateById(id || '')
+  const allCandidates = useCandidatesData()
   const loading = useCandidatesLoading()
   const error = useCandidatesError()
-  const { fetchCandidates, moveStage, addNote } = useCandidatesActions()
+  const fetchCandidates = useFetchCandidates()
+  const moveStage = useMoveStage()
+  const addNote = useAddNote()
 
   useEffect(() => {
-    // Fetch candidates if we don't have the candidate data
-    if (!candidate && !loading) {
+    // Fetch candidates only if we don't have any candidate data at all and not already loading
+    if (!candidate && !loading && allCandidates.length === 0) {
       fetchCandidates()
     }
-  }, [candidate, loading, fetchCandidates])
+  }, [candidate, loading]) // Removed fetchCandidates from dependencies to prevent infinite loop
 
   const handleMoveStage = (candidateId: string, newStage: any) => {
     moveStage(candidateId, newStage)

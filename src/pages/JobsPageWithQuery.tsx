@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AppLayout } from '@/components/layout/AppLayout'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { JobList, JobFilters, JobForm } from '@/components/features/jobs'
 import { 
@@ -141,8 +140,7 @@ export function JobsPageWithQuery() {
   // Show initial loading state
   if (isLoading && !jobs.length) {
     return (
-      <AppLayout>
-        <PageContainer>
+      <PageContainer>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Filters Sidebar Skeleton */}
             <div className="lg:col-span-1">
@@ -157,25 +155,21 @@ export function JobsPageWithQuery() {
               </div>
             </div>
           </div>
-        </PageContainer>
-      </AppLayout>
+      </PageContainer>
     )
   }
 
   // Show error state
   if (error && !jobs.length) {
     return (
-      <AppLayout>
-        <PageContainer>
+      <PageContainer>
           <FullPageLoading message="Failed to load jobs. Please try again." />
-        </PageContainer>
-      </AppLayout>
+      </PageContainer>
     )
   }
 
   return (
-    <AppLayout>
-      <PageContainer>
+    <PageContainer>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
@@ -217,7 +211,6 @@ export function JobsPageWithQuery() {
           job={editingJob || undefined}
           loading={mutationLoading}
         />
-      </PageContainer>
-    </AppLayout>
+    </PageContainer>
   )
 }

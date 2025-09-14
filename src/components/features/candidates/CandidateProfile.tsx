@@ -18,6 +18,7 @@ import {
   MoreHorizontal
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
+import { formatDateSafe } from '@/lib/utils'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 interface CandidateProfileProps {
@@ -111,7 +112,18 @@ export function CandidateProfile({
                   
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Applied {formatDistanceToNow(candidate.createdAt, { addSuffix: true })}</span>
+                    <span>Applied {(() => {
+                      try {
+                        const date = candidate.createdAt instanceof Date 
+                          ? candidate.createdAt 
+                          : new Date(candidate.createdAt)
+                        return isNaN(date.getTime()) 
+                          ? 'Unknown time'
+                          : formatDistanceToNow(date, { addSuffix: true })
+                      } catch {
+                        return 'Unknown time'
+                      }
+                    })()}</span>
                   </div>
                 </div>
               </div>
@@ -192,11 +204,11 @@ export function CandidateProfile({
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Applied Date</label>
-                  <p className="font-medium">{format(candidate.createdAt, 'PPP')}</p>
+                  <p className="font-medium">{formatDateSafe(candidate.createdAt, 'PPP')}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
-                  <p className="font-medium">{format(candidate.updatedAt, 'PPP')}</p>
+                  <p className="font-medium">{formatDateSafe(candidate.updatedAt, 'PPP')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -218,7 +230,19 @@ export function CandidateProfile({
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Days in Process</span>
                   <Badge variant="secondary">
-                    {Math.ceil((Date.now() - candidate.createdAt.getTime()) / (1000 * 60 * 60 * 24))}
+                    {(() => {
+                      try {
+                        const createdDate = candidate.createdAt instanceof Date 
+                          ? candidate.createdAt 
+                          : new Date(candidate.createdAt)
+                        if (isNaN(createdDate.getTime())) {
+                          return 'N/A'
+                        }
+                        return Math.ceil((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24))
+                      } catch {
+                        return 'N/A'
+                      }
+                    })()}
                   </Badge>
                 </div>
               </CardContent>

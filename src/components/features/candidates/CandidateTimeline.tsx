@@ -7,7 +7,8 @@ import {
   CheckCircle,
   ArrowRight
 } from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
+import { formatDateSafe } from '@/lib/utils'
 
 interface CandidateTimelineProps {
   timeline: TimelineEvent[]
@@ -28,9 +29,15 @@ const eventColors: Record<TimelineEvent['type'], string> = {
 
 export function CandidateTimeline({ timeline, className = '' }: CandidateTimelineProps) {
   // Sort timeline by date (newest first)
-  const sortedTimeline = [...timeline].sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )
+  const sortedTimeline = [...timeline].sort((a, b) => {
+    try {
+      const dateA = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt)
+      const dateB = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt)
+      return dateB.getTime() - dateA.getTime()
+    } catch {
+      return 0
+    }
+  })
 
   if (timeline.length === 0) {
     return (
@@ -117,11 +124,22 @@ export function CandidateTimeline({ timeline, className = '' }: CandidateTimelin
                       </div>
                       
                       <div className="text-right text-xs text-muted-foreground">
-                        <div title={format(event.createdAt, 'PPpp')}>
-                          {formatDistanceToNow(event.createdAt, { addSuffix: true })}
+                        <div title={formatDateSafe(event.createdAt, 'PPpp')}>
+                          {(() => {
+                            try {
+                              const date = event.createdAt instanceof Date 
+                                ? event.createdAt 
+                                : new Date(event.createdAt)
+                              return isNaN(date.getTime()) 
+                                ? 'Unknown time'
+                                : formatDistanceToNow(date, { addSuffix: true })
+                            } catch {
+                              return 'Unknown time'
+                            }
+                          })()}
                         </div>
                         <div className="mt-1">
-                          {format(event.createdAt, 'MMM d, HH:mm')}
+                          {formatDateSafe(event.createdAt, 'MMM d, HH:mm')}
                         </div>
                       </div>
                     </div>

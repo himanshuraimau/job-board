@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import type { Note, Candidate } from '@/types'
 import { MessageSquare, Send, User, Calendar } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
+import { formatDateSafe } from '@/lib/utils'
 
 interface NotesSectionProps {
   candidate: Candidate
@@ -231,7 +232,15 @@ export function NotesSection({
             </div>
           ) : (
             candidate.notes
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .sort((a, b) => {
+                try {
+                  const dateA = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt)
+                  const dateB = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt)
+                  return dateB.getTime() - dateA.getTime()
+                } catch {
+                  return 0
+                }
+              })
               .map(note => (
                 <Card key={note.id} className="bg-muted/30">
                   <CardContent className="p-4">
@@ -245,14 +254,25 @@ export function NotesSection({
                           <div>
                             <div className="font-medium text-sm">Team Member</div>
                             <div className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(note.createdAt, { addSuffix: true })}
+                              {(() => {
+                                try {
+                                  const date = note.createdAt instanceof Date 
+                                    ? note.createdAt 
+                                    : new Date(note.createdAt)
+                                  return isNaN(date.getTime()) 
+                                    ? 'Unknown time'
+                                    : formatDistanceToNow(date, { addSuffix: true })
+                                } catch {
+                                  return 'Unknown time'
+                                }
+                              })()}
                             </div>
                           </div>
                         </div>
                         
                         <div className="text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3 inline mr-1" />
-                          {format(note.createdAt, 'MMM d, HH:mm')}
+                          {formatDateSafe(note.createdAt, 'MMM d, HH:mm')}
                         </div>
                       </div>
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AppLayout } from '@/components/layout/AppLayout'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { JobList, JobFilters, JobForm } from '@/components/features/jobs'
 import { useJobsActions, useJobsData, useJobsLoading, useJobsError, useJobsFilters, useJobsPagination } from '@/stores/jobs'
@@ -101,8 +100,7 @@ export function JobsPage() {
   const enableReordering = filters.sort === 'order' && filters.sortDirection === 'asc'
 
   return (
-    <AppLayout>
-      <PageContainer>
+    <PageContainer>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
@@ -140,7 +138,6 @@ export function JobsPage() {
           job={editingJob || undefined}
           loading={loading}
         />
-      </PageContainer>
-    </AppLayout>
+    </PageContainer>
   )
 }

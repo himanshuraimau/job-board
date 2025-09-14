@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageContainer } from '@/components/layout'
 import { CandidateList, CandidateFilters, CandidateKanban } from '@/components/features/candidates'
@@ -33,36 +33,36 @@ export function CandidatesPage() {
     fetchCandidates()
   }, []) // Empty dependency array - only run on mount
 
-  const handleSelectCandidate = (candidate: any) => {
+  const handleSelectCandidate = useCallback((candidate: any) => {
     navigate(`/candidates/${candidate.id}`)
-  }
+  }, [navigate])
 
-  const handleMoveStage = (candidateId: string, newStage: any) => {
+  const handleMoveStage = useCallback((candidateId: string, newStage: any) => {
     moveStage(candidateId, newStage)
-  }
+  }, [moveStage])
 
-  const handleAddNote = (candidateId: string) => {
+  const handleAddNote = useCallback((candidateId: string) => {
     navigate(`/candidates/${candidateId}?tab=notes`)
-  }
+  }, [navigate])
 
-  const handleCreateCandidate = () => {
+  const handleCreateCandidate = useCallback(() => {
     // TODO: Open create candidate modal
     console.log('Create candidate')
-  }
+  }, [])
 
-  const handleFiltersChange = (newFilters: Partial<CandidateFiltersType>) => {
+  const handleFiltersChange = useCallback((newFilters: Partial<CandidateFiltersType>) => {
     setFilters(newFilters)
     fetchCandidates() // Manually trigger fetch after setting filters
-  }
+  }, [setFilters, fetchCandidates]) // Include the actual functions
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setFilters({
       search: undefined,
       stage: undefined,
       jobId: undefined
     })
     fetchCandidates() // Manually trigger fetch after clearing filters
-  }
+  }, [setFilters, fetchCandidates]) // Include the actual functions
 
   if (error) {
     return (

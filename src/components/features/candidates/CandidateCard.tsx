@@ -162,7 +162,18 @@ export function CandidateCard({
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               <span>
-                {formatDistanceToNow(candidate.createdAt, { addSuffix: true })}
+                {(() => {
+                  try {
+                    const date = candidate.createdAt instanceof Date 
+                      ? candidate.createdAt 
+                      : new Date(candidate.createdAt)
+                    return isNaN(date.getTime()) 
+                      ? 'Unknown time'
+                      : formatDistanceToNow(date, { addSuffix: true })
+                  } catch {
+                    return 'Unknown time'
+                  }
+                })()}
               </span>
             </div>
           </div>

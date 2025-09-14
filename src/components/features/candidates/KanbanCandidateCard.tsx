@@ -117,7 +117,18 @@ export function KanbanCandidateCard({
             )}
             
             <div className="ml-auto">
-              {formatDistanceToNow(candidate.createdAt, { addSuffix: true })}
+              {(() => {
+                try {
+                  const date = candidate.createdAt instanceof Date 
+                    ? candidate.createdAt 
+                    : new Date(candidate.createdAt)
+                  return isNaN(date.getTime()) 
+                    ? 'Unknown time'
+                    : formatDistanceToNow(date, { addSuffix: true })
+                } catch {
+                  return 'Unknown time'
+                }
+              })()}
             </div>
           </div>
 

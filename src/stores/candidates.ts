@@ -28,6 +28,13 @@ export const useCandidateStore = create<CandidateStoreState>()(
 
     // Actions
     fetchCandidates: async () => {
+      const currentState = get()
+      
+      // Prevent multiple concurrent calls
+      if (currentState.loading) {
+        return
+      }
+      
       set({ loading: true, error: null })
       
       try {
@@ -354,17 +361,9 @@ export const useFilteredCandidates = () =>
     }
 
     return filtered
-  }, (prev, next) => {
-    // Custom equality check to prevent unnecessary re-renders
-    return (
-      prev.candidates === next.candidates &&
-      prev.filters.search === next.filters.search &&
-      prev.filters.stage === next.filters.stage &&
-      prev.filters.jobId === next.filters.jobId
-    )
   })
 
-// Kanban board data with proper memoization
+// Kanban board data
 export const useKanbanData = () => 
   useCandidateStore(state => {
     const stages: Candidate['stage'][] = ['applied', 'screen', 'tech', 'offer', 'hired', 'rejected']
@@ -373,9 +372,6 @@ export const useKanbanData = () =>
       stage,
       candidates: state.candidates.filter(candidate => candidate.stage === stage)
     }))
-  }, (prev, next) => {
-    // Only re-render if candidates array reference changes
-    return prev.candidates === next.candidates
   })
 
 // Individual action hooks to prevent unnecessary re-renders
@@ -387,13 +383,5 @@ export const useMoveStage = () => useCandidateStore(state => state.moveStage)
 export const useSetFilters = () => useCandidateStore(state => state.setFilters)
 export const useSetPage = () => useCandidateStore(state => state.setPage)
 
-// Combined actions hook for backwards compatibility
-export const useCandidatesActions = () => ({
-  fetchCandidates: useFetchCandidates(),
-  createCandidate: useCreateCandidate(),
-  updateCandidate: useUpdateCandidate(),
-  addNote: useAddNote(),
-  moveStage: useMoveStage(),
-  setFilters: useSetFilters(),
-  setPage: useSetPage()
-})
+// Note: useCandidatesActions removed to prevent infinite loops
+// Use individual action hooks instead: useFetchCandidates, useMoveStage, etc.
