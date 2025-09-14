@@ -1,0 +1,6 @@
+export { TextQuestion } from './TextQuestion'
+export { LongTextQuestion } from './LongTextQuestion'
+export { SingleChoiceQuestion } from './SingleChoiceQuestion'
+export { MultipleChoiceQuestion } from './MultipleChoiceQuestion'
+export { NumericQuestion } from './NumericQuestion'
+export { FileUploadQuestion } from './FileUploadQuestion'
