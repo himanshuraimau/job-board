@@ -290,8 +290,8 @@ export const useCandidateStore = create<CandidateStoreState>()(
         pagination: { ...state.pagination, page: 1 } // Reset to first page when filtering
       }))
       
-      // Auto-fetch with new filters
-      get().fetchCandidates()
+      // Note: Don't auto-fetch here to prevent infinite loops
+      // Components should call fetchCandidates manually after setting filters
     },
 
     setPage: (page) => {
@@ -299,8 +299,8 @@ export const useCandidateStore = create<CandidateStoreState>()(
         pagination: { ...state.pagination, page }
       }))
       
-      // Auto-fetch with new page
-      get().fetchCandidates()
+      // Note: Don't auto-fetch here to prevent infinite loops
+      // Components should call fetchCandidates manually after setting page
     }
   }))
 )
@@ -328,14 +328,15 @@ export const useCandidateById = (id: string) =>
     state.candidates.find(candidate => candidate.id === id)
   )
 
-// Search functionality
+// Search functionality with proper memoization
 export const useFilteredCandidates = () => 
   useCandidateStore(state => {
-    let filtered = state.candidates
+    const { candidates, filters } = state
+    let filtered = candidates
 
     // Apply search filter
-    if (state.filters.search) {
-      const searchTerm = state.filters.search.toLowerCase()
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase()
       filtered = filtered.filter(candidate => 
         candidate.name.toLowerCase().includes(searchTerm) ||
         candidate.email.toLowerCase().includes(searchTerm)
@@ -343,19 +344,27 @@ export const useFilteredCandidates = () =>
     }
 
     // Apply stage filter
-    if (state.filters.stage) {
-      filtered = filtered.filter(candidate => candidate.stage === state.filters.stage)
+    if (filters.stage) {
+      filtered = filtered.filter(candidate => candidate.stage === filters.stage)
     }
 
     // Apply job filter
-    if (state.filters.jobId) {
-      filtered = filtered.filter(candidate => candidate.jobId === state.filters.jobId)
+    if (filters.jobId) {
+      filtered = filtered.filter(candidate => candidate.jobId === filters.jobId)
     }
 
     return filtered
+  }, (prev, next) => {
+    // Custom equality check to prevent unnecessary re-renders
+    return (
+      prev.candidates === next.candidates &&
+      prev.filters.search === next.filters.search &&
+      prev.filters.stage === next.filters.stage &&
+      prev.filters.jobId === next.filters.jobId
+    )
   })
 
-// Kanban board data
+// Kanban board data with proper memoization
 export const useKanbanData = () => 
   useCandidateStore(state => {
     const stages: Candidate['stage'][] = ['applied', 'screen', 'tech', 'offer', 'hired', 'rejected']
@@ -364,14 +373,27 @@ export const useKanbanData = () =>
       stage,
       candidates: state.candidates.filter(candidate => candidate.stage === stage)
     }))
+  }, (prev, next) => {
+    // Only re-render if candidates array reference changes
+    return prev.candidates === next.candidates
   })
 
-export const useCandidatesActions = () => useCandidateStore(state => ({
-  fetchCandidates: state.fetchCandidates,
-  createCandidate: state.createCandidate,
-  updateCandidate: state.updateCandidate,
-  addNote: state.addNote,
-  moveStage: state.moveStage,
-  setFilters: state.setFilters,
-  setPage: state.setPage
-}))
+// Individual action hooks to prevent unnecessary re-renders
+export const useFetchCandidates = () => useCandidateStore(state => state.fetchCandidates)
+export const useCreateCandidate = () => useCandidateStore(state => state.createCandidate)
+export const useUpdateCandidate = () => useCandidateStore(state => state.updateCandidate)
+export const useAddNote = () => useCandidateStore(state => state.addNote)
+export const useMoveStage = () => useCandidateStore(state => state.moveStage)
+export const useSetFilters = () => useCandidateStore(state => state.setFilters)
+export const useSetPage = () => useCandidateStore(state => state.setPage)
+
+// Combined actions hook for backwards compatibility
+export const useCandidatesActions = () => ({
+  fetchCandidates: useFetchCandidates(),
+  createCandidate: useCreateCandidate(),
+  updateCandidate: useUpdateCandidate(),
+  addNote: useAddNote(),
+  moveStage: useMoveStage(),
+  setFilters: useSetFilters(),
+  setPage: useSetPage()
+})

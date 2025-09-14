@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { JobList, JobFilters, JobForm } from '@/components/features/jobs'
@@ -6,6 +7,7 @@ import { useJobsActions, useJobsData, useJobsLoading, useJobsError, useJobsFilte
 import type { Job, JobFilters as JobFiltersType } from '@/types'
 
 export function JobsPage() {
+  const navigate = useNavigate()
   const [showJobForm, setShowJobForm] = useState(false)
   const [editingJob, setEditingJob] = useState<Job | null>(null)
 
@@ -45,8 +47,7 @@ export function JobsPage() {
   }
 
   const handleViewJob = (job: Job) => {
-    // TODO: Navigate to job detail page when routing is implemented
-    console.log('View job:', job)
+    navigate(`/jobs/${job.id}`)
   }
 
   const handleFiltersChange = (newFilters: Partial<JobFiltersType>) => {

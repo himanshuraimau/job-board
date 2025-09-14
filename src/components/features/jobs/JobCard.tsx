@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, Edit, Archive, ArchiveRestore, Eye } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, formatDateIntl } from '@/lib/utils'
 import type { Job } from '@/types'
 
 interface JobCardProps {
@@ -15,25 +15,28 @@ interface JobCardProps {
   className?: string
 }
 
-export function JobCard({ job, onEdit, onArchive, onView, className }: JobCardProps) {
+export const JobCard = React.memo<JobCardProps>(({ job, onEdit, onArchive, onView, className }) => {
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleArchive = async () => {
+  const handleEdit = useCallback(() => {
+    onEdit(job)
+  }, [onEdit, job])
+
+  const handleView = useCallback(() => {
+    if (onView) {
+      onView(job)
+    }
+  }, [onView, job])
+
+  const handleArchive = useCallback(async () => {
     setIsLoading(true)
     try {
       await onArchive(job.id)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [onArchive, job.id])
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(date)
-  }
 
   return (
     <Card className={cn(
@@ -55,7 +58,7 @@ export function JobCard({ job, onEdit, onArchive, onView, className }: JobCardPr
                 {job.status}
               </Badge>
               <span className="text-xs text-muted-foreground">
-                Created {formatDate(job.createdAt)}
+                Created {formatDateIntl(job.createdAt)}
               </span>
             </div>
           </div>
@@ -74,28 +77,28 @@ export function JobCard({ job, onEdit, onArchive, onView, className }: JobCardPr
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {onView && (
-                <DropdownMenuItem onClick={() => onView(job)}>
+                <DropdownMenuItem onClick={handleView}>
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem onClick={() => onEdit(job)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleArchive} disabled={isLoading}>
-                {job.status === 'active' ? (
-                  <>
-                    <Archive className="mr-2 h-4 w-4" />
-                    Archive
-                  </>
-                ) : (
-                  <>
-                    <ArchiveRestore className="mr-2 h-4 w-4" />
-                    Restore
-                  </>
-                )}
-              </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleEdit}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleArchive} disabled={isLoading}>
+              {job.status === 'active' ? (
+                <>
+                  <Archive className="mr-2 h-4 w-4" />
+                  Archive
+                </>
+              ) : (
+                <>
+                  <ArchiveRestore className="mr-2 h-4 w-4" />
+                  Restore
+                </>
+              )}
+            </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -121,4 +124,6 @@ export function JobCard({ job, onEdit, onArchive, onView, className }: JobCardPr
       </CardFooter>
     </Card>
   )
-}
+})
+
+JobCard.displayName = 'JobCard'

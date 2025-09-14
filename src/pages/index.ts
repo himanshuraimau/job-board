@@ -1,3 +1,5 @@
 export { JobsPage } from './JobsPage'
+export { JobsPageWithQuery } from './JobsPageWithQuery'
+export { JobDetailPage } from './JobDetailPage'
 export { CandidatesPage } from './CandidatesPage'
 export { CandidateProfilePage } from './CandidateProfilePage'

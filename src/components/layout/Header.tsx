@@ -1,4 +1,5 @@
 
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -7,13 +8,26 @@ interface HeaderProps {
 }
 
 export function Header({ className }: HeaderProps) {
-  // For now, we'll use simple navigation without React Router
-  // This will be updated when routing is implemented in task 8
+  const location = useLocation()
+  
   const navigationItems = [
-    { label: 'Jobs', href: '/jobs', active: true },
-    { label: 'Candidates', href: '/candidates', active: false },
-    { label: 'Assessments', href: '/assessments', active: false },
+    { label: 'Jobs', href: '/jobs' },
+    { label: 'Candidates', href: '/candidates' },
+    { label: 'Assessments', href: '/assessments/new' },
   ]
+
+  const isActiveRoute = (href: string) => {
+    if (href === '/jobs') {
+      return location.pathname === '/jobs' || location.pathname.startsWith('/jobs/')
+    }
+    if (href === '/candidates') {
+      return location.pathname === '/candidates' || location.pathname.startsWith('/candidates/')
+    }
+    if (href.startsWith('/assessments')) {
+      return location.pathname.startsWith('/assessments')
+    }
+    return location.pathname === href
+  }
 
   return (
     <header className={cn(
@@ -30,11 +44,14 @@ export function Header({ className }: HeaderProps) {
             {navigationItems.map((item) => (
               <Button
                 key={item.label}
-                variant={item.active ? 'default' : 'ghost'}
+                variant={isActiveRoute(item.href) ? 'default' : 'ghost'}
                 size="sm"
                 className="text-sm font-medium"
+                asChild
               >
-                {item.label}
+                <Link to={item.href}>
+                  {item.label}
+                </Link>
               </Button>
             ))}
           </nav>

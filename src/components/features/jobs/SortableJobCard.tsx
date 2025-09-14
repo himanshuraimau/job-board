@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { JobCard } from './JobCard'
@@ -15,7 +15,7 @@ interface SortableJobCardProps {
   isDragging?: boolean
 }
 
-export const SortableJobCard: React.FC<SortableJobCardProps> = ({
+export const SortableJobCard = React.memo<SortableJobCardProps>(({
   job,
   onEdit,
   onArchive,
@@ -81,4 +81,6 @@ export const SortableJobCard: React.FC<SortableJobCardProps> = ({
       />
     </div>
   )
-}
+})
+
+SortableJobCard.displayName = 'SortableJobCard'

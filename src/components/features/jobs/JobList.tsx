@@ -28,7 +28,7 @@ interface JobListProps {
   className?: string
 }
 
-export function JobList({
+export const JobList = React.memo<JobListProps>(({
   jobs,
   loading,
   error,
@@ -41,7 +41,7 @@ export function JobList({
   onReorderJobs,
   enableReordering = false,
   className
-}: JobListProps) {
+}: JobListProps) =>{
   const [reorderMode, setReorderMode] = React.useState(false)
 
   // Only allow reorder mode if reordering is enabled and we have the handler
@@ -281,4 +281,6 @@ export function JobList({
       )}
     </div>
   )
-}
+})
+
+JobList.displayName = 'JobList'

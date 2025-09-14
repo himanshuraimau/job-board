@@ -9,7 +9,9 @@ import {
   useCandidatesLoading, 
   useCandidatesError,
   useCandidatesFilters,
-  useCandidatesActions,
+  useFetchCandidates,
+  useMoveStage,
+  useSetFilters,
   useFilteredCandidates
 } from '@/stores/candidates'
 import type { CandidateFilters as CandidateFiltersType } from '@/types'
@@ -23,11 +25,13 @@ export function CandidatesPage() {
   const loading = useCandidatesLoading()
   const error = useCandidatesError()
   const filters = useCandidatesFilters()
-  const { fetchCandidates, moveStage, setFilters } = useCandidatesActions()
+  const fetchCandidates = useFetchCandidates()
+  const moveStage = useMoveStage()
+  const setFilters = useSetFilters()
 
   useEffect(() => {
     fetchCandidates()
-  }, [fetchCandidates])
+  }, []) // Empty dependency array - only run on mount
 
   const handleSelectCandidate = (candidate: any) => {
     navigate(`/candidates/${candidate.id}`)
@@ -48,6 +52,7 @@ export function CandidatesPage() {
 
   const handleFiltersChange = (newFilters: Partial<CandidateFiltersType>) => {
     setFilters(newFilters)
+    fetchCandidates() // Manually trigger fetch after setting filters
   }
 
   const handleClearFilters = () => {
@@ -56,6 +61,7 @@ export function CandidatesPage() {
       stage: undefined,
       jobId: undefined
     })
+    fetchCandidates() // Manually trigger fetch after clearing filters
   }
 
   if (error) {
