@@ -22,6 +22,7 @@ interface JobListProps {
   onEditJob: (job: Job) => void
   onArchiveJob: (jobId: string) => void
   onViewJob?: (job: Job) => void
+  onAssessmentJob?: (job: Job) => void
   onPageChange: (page: number) => void
   onReorderJobs?: (fromIndex: number, toIndex: number) => Promise<void>
   enableReordering?: boolean
@@ -37,11 +38,12 @@ export const JobList = React.memo<JobListProps>(({
   onEditJob,
   onArchiveJob,
   onViewJob,
+  onAssessmentJob,
   onPageChange,
   onReorderJobs,
   enableReordering = false,
   className
-}: JobListProps) =>{
+}: JobListProps) => {
   const [reorderMode, setReorderMode] = React.useState(false)
 
   // Only allow reorder mode if reordering is enabled and we have the handler
@@ -237,6 +239,7 @@ export const JobList = React.memo<JobListProps>(({
                   onEdit={onEditJob}
                   onArchive={onArchiveJob}
                   onView={onViewJob}
+                  onAssessment={onAssessmentJob}
                   className={loading ? 'opacity-50 pointer-events-none' : ''}
                 />
               ))}

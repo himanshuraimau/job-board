@@ -11,22 +11,15 @@ export function Header({ className }: HeaderProps) {
   const location = useLocation()
   
   const navigationItems = [
-    { label: 'Jobs', href: '/jobs' },
-    { label: 'Candidates', href: '/candidates' },
-    { label: 'Assessments', href: '/assessments/new' },
+    { label: 'Jobs', href: '/jobs', matchPaths: ['/jobs'] },
+    { label: 'Candidates', href: '/candidates', matchPaths: ['/candidates'] },
+    { label: 'Assessments', href: '/jobs', matchPaths: ['/assessments'] }, // Link to jobs, highlight for assessments
   ]
 
-  const isActiveRoute = (href: string) => {
-    if (href === '/jobs') {
-      return location.pathname === '/jobs' || location.pathname.startsWith('/jobs/')
-    }
-    if (href === '/candidates') {
-      return location.pathname === '/candidates' || location.pathname.startsWith('/candidates/')
-    }
-    if (href.startsWith('/assessments')) {
-      return location.pathname.startsWith('/assessments')
-    }
-    return location.pathname === href
+  const isActiveRoute = (item: typeof navigationItems[0]) => {
+    return item.matchPaths.some(path => 
+      location.pathname === path || location.pathname.startsWith(path + '/')
+    )
   }
 
   return (
@@ -44,7 +37,7 @@ export function Header({ className }: HeaderProps) {
             {navigationItems.map((item) => (
               <Button
                 key={item.label}
-                variant={isActiveRoute(item.href) ? 'default' : 'ghost'}
+                variant={isActiveRoute(item) ? 'default' : 'ghost'}
                 size="sm"
                 className="text-sm font-medium"
                 asChild

@@ -1,73 +1,30 @@
-import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { AssessmentBuilder } from '@/components/features/assessments'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Save, Eye, Plus } from 'lucide-react'
-import { useAssessmentStore } from '@/stores/assessments'
+import { ArrowLeft } from 'lucide-react'
 import { useJobQuery } from '@/hooks/useJobsQuery'
-import type { Assessment, Section, Question } from '@/types'
+import type { Assessment } from '@/types'
 
 export function AssessmentPage() {
   const { jobId } = useParams<{ jobId: string }>()
   const navigate = useNavigate()
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
   
   // Get job data for context
   const { data: job, isLoading: jobLoading, error: jobError } = useJobQuery(jobId || '')
-  
-  // Assessment store
-  const {
-    assessments,
-    loading: assessmentLoading,
-    error: assessmentError,
-    fetchAssessment,
-    updateAssessment
-  } = useAssessmentStore()
-
-  const currentAssessment = jobId ? assessments[jobId] : null
-
-  useEffect(() => {
-    if (jobId) {
-      fetchAssessment(jobId)
-    }
-  }, [jobId, fetchAssessment])
 
   const handleBack = () => {
     navigate('/jobs')
   }
 
-  const handleSaveAssessment = async (assessment: Assessment) => {
-    if (!jobId) return
-    
-    try {
-      await updateAssessment(jobId, assessment)
-      // You could show a success message here
-    } catch (error) {
-      console.error('Failed to save assessment:', error)
-      // You could show an error message here
-    }
+  const handlePreview = (assessment: Assessment) => {
+    // Could open preview modal or navigate to preview page
+    console.log('Preview assessment:', assessment)
   }
 
-  const handleAddSection = () => {
-    if (!currentAssessment || !jobId) return
-
-    const newSection: Section = {
-      id: `section-${Date.now()}`,
-      title: 'New Section',
-      description: '',
-      questions: [],
-      order: currentAssessment.sections.length + 1
-    }
-
-    const updatedAssessment: Assessment = {
-      ...currentAssessment,
-      sections: [...currentAssessment.sections, newSection],
-      updatedAt: new Date()
-    }
-
-    handleSaveAssessment(updatedAssessment)
+  const handleSave = (assessment: Assessment) => {
+    // The AssessmentBuilder handles saving internally
+    console.log('Assessment saved:', assessment)
   }
 
   if (!jobId) {
@@ -85,29 +42,24 @@ export function AssessmentPage() {
     )
   }
 
-  if (jobError || assessmentError) {
+  if (jobError) {
     return (
       <PageContainer>
         <div className="text-center py-12">
-          <h1 className="text-2xl font-semibold text-destructive">Error Loading Assessment</h1>
+          <h1 className="text-2xl font-semibold text-destructive">Error Loading Job</h1>
           <p className="text-muted-foreground mt-2">
-            {jobError || assessmentError}
+            {jobError instanceof Error ? jobError.message : 'Failed to load job details'}
           </p>
-          <div className="flex gap-2 justify-center mt-4">
-            <Button onClick={() => fetchAssessment(jobId)} variant="outline">
-              Try Again
-            </Button>
-            <Button onClick={handleBack}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Jobs
-            </Button>
-          </div>
+          <Button onClick={handleBack} className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Jobs
+          </Button>
         </div>
       </PageContainer>
     )
   }
 
-  if (jobLoading || assessmentLoading) {
+  if (jobLoading) {
     return (
       <PageContainer>
         <div className="text-center py-12">
@@ -137,49 +89,14 @@ export function AssessmentPage() {
               </p>
             </div>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <Button
-              variant={isPreviewMode ? "default" : "outline"}
-              onClick={() => setIsPreviewMode(!isPreviewMode)}
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              {isPreviewMode ? 'Exit Preview' : 'Preview'}
-            </Button>
-            
-            {!isPreviewMode && (
-              <Button onClick={handleAddSection}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Section
-              </Button>
-            )}
-          </div>
         </div>
 
-        {/* Assessment Content */}
-        {currentAssessment ? (
-          <AssessmentBuilder
-            assessment={currentAssessment}
-            onSave={handleSaveAssessment}
-            isPreviewMode={isPreviewMode}
-            job={job}
-          />
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>No Assessment Found</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                There is no assessment created for this job yet. Create one to get started.
-              </p>
-              <Button onClick={handleAddSection}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create First Section
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {/* Assessment Content - Using existing AssessmentBuilder component */}
+        <AssessmentBuilder
+          jobId={jobId}
+          onPreview={handlePreview}
+          onSave={handleSave}
+        />
       </div>
     </PageContainer>
   )

@@ -78,6 +78,10 @@ export function JobsPageWithQuery() {
     navigate(`/jobs/${job.id}`)
   }
 
+  const handleAssessmentJob = (job: Job) => {
+    navigate(`/assessments/${job.id}`)
+  }
+
   const handleFiltersChange = (newFilters: Partial<JobFiltersType>) => {
     setFilters(prev => ({ ...prev, ...newFilters }))
     setCurrentPage(1) // Reset to first page when filters change
@@ -196,6 +200,7 @@ export function JobsPageWithQuery() {
               onEditJob={handleEditJob}
               onArchiveJob={handleArchiveJob}
               onViewJob={handleViewJob}
+              onAssessmentJob={handleAssessmentJob}
               onPageChange={handlePageChange}
               onReorderJobs={handleReorderJobs}
               enableReordering={enableReordering}

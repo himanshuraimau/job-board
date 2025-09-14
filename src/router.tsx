@@ -40,12 +40,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'assessments/:jobId',
-        element: (
-          <div className="p-8 text-center">
-            <h1 className="text-2xl font-semibold mb-4">Assessment Builder</h1>
-            <p className="text-muted-foreground">Assessment builder page will be implemented in a future update.</p>
-          </div>
-        )
+        element: <AssessmentPage />
       },
       {
         path: '*',

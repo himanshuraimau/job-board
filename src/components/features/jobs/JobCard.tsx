@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Edit, Archive, ArchiveRestore, Eye } from 'lucide-react'
+import { MoreHorizontal, Edit, Archive, ArchiveRestore, Eye, FileText } from 'lucide-react'
 import { cn, formatDateIntl } from '@/lib/utils'
 import type { Job } from '@/types'
 
@@ -12,10 +12,11 @@ interface JobCardProps {
   onEdit: (job: Job) => void
   onArchive: (jobId: string) => void
   onView?: (job: Job) => void
+  onAssessment?: (job: Job) => void
   className?: string
 }
 
-export const JobCard = React.memo<JobCardProps>(({ job, onEdit, onArchive, onView, className }) => {
+export const JobCard = React.memo<JobCardProps>(({ job, onEdit, onArchive, onView, onAssessment, className }) => {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleEdit = useCallback(() => {
@@ -27,6 +28,12 @@ export const JobCard = React.memo<JobCardProps>(({ job, onEdit, onArchive, onVie
       onView(job)
     }
   }, [onView, job])
+
+  const handleAssessment = useCallback(() => {
+    if (onAssessment) {
+      onAssessment(job)
+    }
+  }, [onAssessment, job])
 
   const handleArchive = useCallback(async () => {
     setIsLoading(true)
@@ -86,6 +93,12 @@ export const JobCard = React.memo<JobCardProps>(({ job, onEdit, onArchive, onVie
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
+            {onAssessment && (
+              <DropdownMenuItem onClick={handleAssessment}>
+                <FileText className="mr-2 h-4 w-4" />
+                Assessment
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={handleArchive} disabled={isLoading}>
               {job.status === 'active' ? (
                 <>
