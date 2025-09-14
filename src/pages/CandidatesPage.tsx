@@ -12,7 +12,8 @@ import {
   useFetchCandidates,
   useMoveStage,
   useSetFilters,
-  useFilteredCandidates
+  useFilteredCandidates,
+  useCandidateStore
 } from '@/stores/candidates'
 import type { CandidateFilters as CandidateFiltersType } from '@/types'
 import { Plus, List, Kanban } from 'lucide-react'
@@ -29,8 +30,12 @@ export function CandidatesPage() {
   const moveStage = useMoveStage()
   const setFilters = useSetFilters()
 
+  // Initial fetch on mount only
   useEffect(() => {
-    fetchCandidates()
+    // Only fetch if we don't have candidates yet and not already loading
+    if (allCandidates.length === 0 && !loading) {
+      fetchCandidates()
+    }
   }, []) // Empty dependency array - only run on mount
 
   const handleSelectCandidate = useCallback((candidate: any) => {
@@ -52,8 +57,14 @@ export function CandidatesPage() {
 
   const handleFiltersChange = useCallback((newFilters: Partial<CandidateFiltersType>) => {
     setFilters(newFilters)
-    fetchCandidates() // Manually trigger fetch after setting filters
-  }, [setFilters, fetchCandidates]) // Include the actual functions
+    // Simple timeout to allow state to update, then fetch
+    setTimeout(() => {
+      const currentStore = useCandidateStore.getState()
+      if (!currentStore.loading) {
+        currentStore.fetchCandidates()
+      }
+    }, 100)
+  }, []) // Empty deps - using store getState instead
 
   const handleClearFilters = useCallback(() => {
     setFilters({
@@ -61,8 +72,14 @@ export function CandidatesPage() {
       stage: undefined,
       jobId: undefined
     })
-    fetchCandidates() // Manually trigger fetch after clearing filters
-  }, [setFilters, fetchCandidates]) // Include the actual functions
+    // Simple timeout to allow state to update, then fetch
+    setTimeout(() => {
+      const currentStore = useCandidateStore.getState()
+      if (!currentStore.loading) {
+        currentStore.fetchCandidates()
+      }
+    }, 100)
+  }, []) // Empty deps - using store getState instead
 
   if (error) {
     return (

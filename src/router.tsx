@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
-import { JobsPageWithQuery, JobDetailPage, CandidatesPage, CandidateProfilePage } from './pages'
+import { JobsPageWithQuery, JobDetailPage, CandidatesPage, CandidateProfilePage, AssessmentPage } from './pages'
 import { AppLayout } from './components/layout/AppLayout'
 import { ErrorBoundaryPage } from './components/layout/ErrorBoundaryPage'
 

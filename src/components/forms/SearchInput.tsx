@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { Search, X } from 'lucide-react'
@@ -23,29 +23,26 @@ export function SearchInput({
 }: SearchInputProps) {
   const [inputValue, setInputValue] = useState(value)
   const [isDebouncing, setIsDebouncing] = useState(false)
+  const onSearchRef = useRef(onSearch)
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    (query: string) => {
-      setIsDebouncing(true)
-      const timeoutId = setTimeout(() => {
-        onSearch(query)
-        setIsDebouncing(false)
-      }, debounceMs)
-
-      return () => {
-        clearTimeout(timeoutId)
-        setIsDebouncing(false)
-      }
-    },
-    [onSearch, debounceMs]
-  )
-
-  // Effect to handle debounced search
+  // Update ref when onSearch changes
   useEffect(() => {
-    const cleanup = debouncedSearch(inputValue)
-    return cleanup
-  }, [inputValue, debouncedSearch])
+    onSearchRef.current = onSearch
+  }, [onSearch])
+
+  // Effect to handle debounced search - stable reference
+  useEffect(() => {
+    setIsDebouncing(true)
+    const timeoutId = setTimeout(() => {
+      onSearchRef.current(inputValue)
+      setIsDebouncing(false)
+    }, debounceMs)
+
+    return () => {
+      clearTimeout(timeoutId)
+      setIsDebouncing(false)
+    }
+  }, [inputValue, debounceMs]) // Removed onSearch from dependencies
 
   // Sync external value changes
   useEffect(() => {
