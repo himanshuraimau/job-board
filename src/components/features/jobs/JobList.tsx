@@ -59,7 +59,7 @@ export const JobList = React.memo<JobListProps>(({
   const startItem = (pagination.page - 1) * pagination.pageSize + 1
   const endItem = Math.min(pagination.page * pagination.pageSize, pagination.total)
 
-  const renderPaginationButton = (page: number, label?: string) => (
+   const renderPaginationButton = (page: number, label?: string) => (
     <Button
       key={page}
       variant={page === pagination.page ? 'default' : 'outline'}

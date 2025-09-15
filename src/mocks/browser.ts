@@ -10,7 +10,8 @@ export async function startMocking() {
     await worker.start({
       onUnhandledRequest: (req, print) => {
         // Only warn about unhandled API requests, not React Router navigation
-        if (req.url.pathname.startsWith('/api')) {
+        const url = new URL(req.url)
+        if (url.pathname.startsWith('/api')) {
           print.warning()
         }
       },

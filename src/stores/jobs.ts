@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { shallow } from 'zustand/shallow'
 import type { Job, JobStore } from '@/types'
 import { apiClient } from '@/lib/api'
 
@@ -266,4 +265,4 @@ export const useJobsActions = () => useJobStore(state => ({
   reorderJobs: state.reorderJobs,
   setFilters: state.setFilters,
   setPage: state.setPage
-}), shallow)
+}))

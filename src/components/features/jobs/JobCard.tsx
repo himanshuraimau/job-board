@@ -47,24 +47,24 @@ export const JobCard = React.memo<JobCardProps>(({ job, onEdit, onArchive, onVie
 
   return (
     <Card className={cn(
-      'group transition-all duration-200 hover:shadow-md',
+      'group transition-all duration-200 hover:shadow-md flex flex-col h-full',
       job.status === 'archived' && 'opacity-60',
       className
     )}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+      <CardHeader className="pb-3 flex-shrink-0">
+        <div className="flex items-start justify-between gap-2">
           <div className="space-y-1 flex-1 min-w-0">
-            <h3 className="font-semibold text-lg leading-tight truncate">
+            <h3 className="font-semibold text-lg leading-tight line-clamp-2 break-words">
               {job.title}
             </h3>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Badge 
                 variant={job.status === 'active' ? 'default' : 'secondary'}
-                className="text-xs"
+                className="text-xs shrink-0"
               >
                 {job.status}
               </Badge>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground truncate">
                 Created {formatDateIntl(job.createdAt)}
               </span>
             </div>
@@ -75,7 +75,7 @@ export const JobCard = React.memo<JobCardProps>(({ job, onEdit, onArchive, onVie
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                 disabled={isLoading}
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -117,21 +117,27 @@ export const JobCard = React.memo<JobCardProps>(({ job, onEdit, onArchive, onVie
         </div>
       </CardHeader>
 
-      <CardContent className="pb-3">
-        <p className="text-sm text-muted-foreground line-clamp-3">
+      <CardContent className="pb-3 flex-1 min-h-0">
+        <p className="text-sm text-muted-foreground line-clamp-3 break-words">
           {job.description || 'No description provided.'}
         </p>
       </CardContent>
 
-      <CardFooter className="pt-0">
-        <div className="flex flex-wrap gap-1">
-          {job.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-          {job.tags.length === 0 && (
+      <CardFooter className="pt-0 flex-shrink-0">
+        <div className="flex flex-wrap gap-1 w-full overflow-hidden">
+          {job.tags.length > 0 ? (
+            job.tags.slice(0, 5).map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs truncate max-w-24">
+                {tag}
+              </Badge>
+            ))
+          ) : (
             <span className="text-xs text-muted-foreground">No tags</span>
+          )}
+          {job.tags.length > 5 && (
+            <Badge variant="outline" className="text-xs">
+              +{job.tags.length - 5}
+            </Badge>
           )}
         </div>
       </CardFooter>

@@ -40,8 +40,11 @@ export function useCreateJobMutation() {
       return apiClient.createJob(jobData)
     },
     onSuccess: (newJob) => {
-      // Invalidate and refetch jobs list
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs() })
+      // Invalidate and refetch jobs list (but preserve current pagination)
+      queryClient.refetchQueries({ 
+        queryKey: queryKeys.jobs(),
+        type: 'active'
+      })
       
       // Optimistically add to cache
       queryClient.setQueryData(queryKeys.job(newJob.id), newJob)
@@ -111,8 +114,11 @@ export function useUpdateJobMutation() {
       // Update caches with server response
       queryClient.setQueryData(queryKeys.job(updatedJob.id), updatedJob)
       
-      // Invalidate lists to ensure consistency
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs() })
+      // Refetch lists to ensure consistency (preserve pagination)
+      queryClient.refetchQueries({ 
+        queryKey: queryKeys.jobs(),
+        type: 'active'
+      })
       
       // Show success toast
       toast.success('Job updated successfully', {
@@ -169,8 +175,11 @@ export function useDeleteJobMutation() {
       // Remove from cache
       queryClient.removeQueries({ queryKey: queryKeys.job(jobId) })
       
-      // Invalidate lists
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs() })
+      // Refetch lists (preserve pagination)
+      queryClient.refetchQueries({ 
+        queryKey: queryKeys.jobs(),
+        type: 'active'
+      })
       
       // Show success toast
       toast.success('Job deleted successfully')
@@ -232,8 +241,11 @@ export function useReorderJobsMutation() {
       })
     },
     onSuccess: () => {
-      // Invalidate to ensure consistency with server
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs() })
+      // Refetch to ensure consistency with server (preserve pagination)
+      queryClient.refetchQueries({ 
+        queryKey: queryKeys.jobs(),
+        type: 'active'
+      })
       
       // Show success toast
       toast.success('Jobs reordered successfully')

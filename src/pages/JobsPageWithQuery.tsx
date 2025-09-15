@@ -21,14 +21,18 @@ export function JobsPageWithQuery() {
   const [showJobForm, setShowJobForm] = useState(false)
   const [editingJob, setEditingJob] = useState<Job | null>(null)
   const [filters, setFilters] = useState<JobFiltersType>({
-    search: '',
+    search: undefined,
     status: undefined,
-    tags: [],
+    tags: undefined,
     sort: 'order',
     sortDirection: 'asc'
   })
-  const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 10
+  const [currentPage, setCurrentPage] = useState(() => {
+    // Initialize page from localStorage to persist across refreshes/re-renders
+    const savedPage = localStorage.getItem('jobs-current-page')
+    return savedPage ? parseInt(savedPage, 10) : 1
+  })
+  const pageSize = 8 // Set to 8 to ensure pagination with 25+ jobs
 
   // React Query hooks
   const { 
@@ -89,9 +93,9 @@ export function JobsPageWithQuery() {
 
   const handleClearFilters = () => {
     setFilters({
-      search: '',
+      search: undefined,
       status: undefined,
-      tags: [],
+      tags: undefined,
       sort: 'order',
       sortDirection: 'asc'
     })
@@ -100,6 +104,8 @@ export function JobsPageWithQuery() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
+    // Persist page to localStorage to prevent resets
+    localStorage.setItem('jobs-current-page', page.toString())
   }
 
   const handleFormSubmit = async (data: any) => {
