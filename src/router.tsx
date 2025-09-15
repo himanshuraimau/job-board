@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
-import { JobsPageWithQuery, JobDetailPage, CandidatesPage, CandidateProfilePage, AssessmentPage } from './pages'
+import { JobsPageWithQuery, JobDetailPage, CandidatesPage, CandidateProfilePage, AssessmentPage, AssessmentsPage } from './pages'
 import { AppLayout } from './components/layout/AppLayout'
 import { ErrorBoundaryPage } from './components/layout/ErrorBoundaryPage'
 
@@ -37,6 +37,10 @@ export const router = createBrowserRouter([
       {
         path: 'candidates/:id',
         element: <CandidateProfilePage />
+      },
+      {
+        path: 'assessments',
+        element: <AssessmentsPage />
       },
       {
         path: 'assessments/:jobId',

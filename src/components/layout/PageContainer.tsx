@@ -19,9 +19,9 @@ export function PageContainer({
     <div className={cn('flex flex-col h-full', className)}>
       {(title || description || actions) && (
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container py-6">
+          <div className="container max-w-6xl mx-auto py-8">
             <div className="flex items-center justify-between">
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {title && (
                   <h1 className="text-2xl font-semibold tracking-tight">
                     {title}
@@ -34,7 +34,7 @@ export function PageContainer({
                 )}
               </div>
               {actions && (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   {actions}
                 </div>
               )}
@@ -43,7 +43,7 @@ export function PageContainer({
         </div>
       )}
       
-      <div className="flex-1 container py-6">
+      <div className="flex-1 container max-w-6xl mx-auto py-8">
         {children}
       </div>
     </div>

@@ -13,7 +13,7 @@ export function Header({ className }: HeaderProps) {
   const navigationItems = [
     { label: 'Jobs', href: '/jobs', matchPaths: ['/jobs'] },
     { label: 'Candidates', href: '/candidates', matchPaths: ['/candidates'] },
-    { label: 'Assessments', href: '/jobs', matchPaths: ['/assessments'] }, // Link to jobs, highlight for assessments
+    { label: 'Assessments', href: '/assessments', matchPaths: ['/assessments'] },
   ]
 
   const isActiveRoute = (item: typeof navigationItems[0]) => {
@@ -27,13 +27,13 @@ export function Header({ className }: HeaderProps) {
       'border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
       className
     )}>
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center space-x-8">
+      <div className="container flex h-16 items-center justify-center">
+        <div className="flex items-center space-x-12">
           <div className="flex items-center space-x-2">
             <h1 className="text-xl font-bold">TalentFlow</h1>
           </div>
           
-          <nav className="flex items-center space-x-6">
+          <nav className="flex items-center space-x-8">
             {navigationItems.map((item) => (
               <Button
                 key={item.label}
@@ -48,12 +48,12 @@ export function Header({ className }: HeaderProps) {
               </Button>
             ))}
           </nav>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm">
-            Settings
-          </Button>
+          
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" size="sm">
+              Settings
+            </Button>
+          </div>
         </div>
       </div>
     </header>

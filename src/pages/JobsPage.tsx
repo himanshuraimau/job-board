@@ -101,19 +101,19 @@ export function JobsPage() {
 
   return (
     <PageContainer>
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
             <JobFilters
               filters={filters}
               onFiltersChange={handleFiltersChange}
               onClearFilters={handleClearFilters}
-              className="sticky top-6"
+              className="sticky top-8"
             />
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 space-y-6">
             <JobList
               jobs={jobs}
               loading={loading}

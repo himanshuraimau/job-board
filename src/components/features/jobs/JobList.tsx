@@ -128,10 +128,10 @@ export const JobList = React.memo<JobListProps>(({
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-8', className)}>
       {/* Header with Create Button */}
       <div className="flex items-center justify-between">
-        <div className="space-y-1">
+        <div className="space-y-2">
           <h2 className="text-2xl font-semibold tracking-tight">Jobs</h2>
           {pagination.total > 0 && (
             <p className="text-sm text-muted-foreground">
@@ -143,7 +143,7 @@ export const JobList = React.memo<JobListProps>(({
         <div className="flex items-center gap-4">
           {/* Reorder Mode Toggle */}
           {canReorder && (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
               <Label htmlFor="reorder-mode" className="text-sm font-medium">
                 Reorder Mode
@@ -166,11 +166,11 @@ export const JobList = React.memo<JobListProps>(({
 
       {/* Loading State */}
       {loading && jobs.length === 0 && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="h-4 bg-muted rounded w-3/4"></div>
                   <div className="h-3 bg-muted rounded w-1/2"></div>
                   <div className="space-y-2">
@@ -215,8 +215,8 @@ export const JobList = React.memo<JobListProps>(({
       {jobs.length > 0 && (
         <>
           {reorderMode && onReorderJobs ? (
-            <div className="space-y-2">
-              <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg border border-dashed">
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg border border-dashed">
                 <ArrowUpDown className="h-4 w-4 inline mr-2" />
                 Drag and drop jobs to reorder them. Changes are saved automatically.
               </div>
@@ -227,11 +227,11 @@ export const JobList = React.memo<JobListProps>(({
                 onArchiveJob={onArchiveJob}
                 onViewJob={onViewJob}
                 disabled={loading}
-                className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
               />
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {jobs.map((job) => (
                 <JobCard
                   key={job.id}

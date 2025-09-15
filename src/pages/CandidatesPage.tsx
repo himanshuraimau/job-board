@@ -103,9 +103,9 @@ export function CandidatesPage() {
 
   return (
     <PageContainer>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="space-y-2">
             <h1 className="text-3xl font-bold">Candidates</h1>
             <p className="text-muted-foreground">
               Manage and track candidates through the hiring process
@@ -118,7 +118,7 @@ export function CandidatesPage() {
         </div>
 
         <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'list' | 'kanban')}>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-6">
             <TabsList>
               <TabsTrigger value="list" className="flex items-center gap-2">
                 <List className="h-4 w-4" />
@@ -135,8 +135,8 @@ export function CandidatesPage() {
             </div>
           </div>
 
-          <TabsContent value="list">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <TabsContent value="list" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
               {/* Filters Sidebar */}
               <div className="lg:col-span-1">
                 <CandidateFilters
@@ -144,7 +144,7 @@ export function CandidatesPage() {
                   onFiltersChange={handleFiltersChange}
                   onClearFilters={handleClearFilters}
                   candidateCount={filteredCandidates.length}
-                  className="sticky top-6"
+                  className="sticky top-8"
                 />
               </div>
 
@@ -163,8 +163,8 @@ export function CandidatesPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="kanban">
-            <div className="space-y-4">
+          <TabsContent value="kanban" className="space-y-6">
+            <div className="space-y-6">
               {/* Filters for Kanban */}
               <div className="max-w-md">
                 <CandidateFilters
