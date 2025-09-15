@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useCallback, memo } from 'react'
 import { CandidateCard } from './CandidateCard'
 import type { Candidate } from '@/types'
 import { Loader2 } from 'lucide-react'
@@ -36,8 +36,15 @@ export function CandidateList({
     count: candidates.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimateSize,
-    overscan: 5, // Render 5 extra items for smooth scrolling
-    getItemKey: (index) => candidates[index]?.id || index
+    overscan: 10, // Increased overscan for better performance with large datasets
+    getItemKey: (index) => candidates[index]?.id || index,
+    // Enable smooth scrolling for better UX
+    scrollToFn: (offset, behavior = 'auto') => {
+      parentRef.current?.scrollTo({
+        top: offset,
+        behavior
+      })
+    }
   })
 
   if (loading && candidates.length === 0) {
@@ -90,27 +97,15 @@ export function CandidateList({
             }
 
             return (
-              <div
+              <VirtualizedCandidateItem
                 key={virtualItem.key}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: virtualItem.size,
-                  transform: `translateY(${virtualItem.start}px)`
-                }}
-              >
-                <div className="p-2 h-full">
-                  <CandidateCard
-                    candidate={candidate}
-                    onSelect={onSelectCandidate}
-                    onMoveStage={onMoveStage}
-                    onAddNote={onAddNote}
-                    compact={compact}
-                  />
-                </div>
-              </div>
+                virtualItem={virtualItem}
+                candidate={candidate}
+                onSelectCandidate={onSelectCandidate}
+                onMoveStage={onMoveStage}
+                onAddNote={onAddNote}
+                compact={compact}
+              />
             )
           })}
         </div>
@@ -128,5 +123,70 @@ export function CandidateList({
   )
 }
 
+// Optimized virtual item component with memoization
+interface VirtualizedCandidateItemProps {
+  virtualItem: any
+  candidate: Candidate
+  onSelectCandidate?: (candidate: Candidate) => void
+  onMoveStage?: (candidateId: string, newStage: Candidate['stage']) => void
+  onAddNote?: (candidateId: string) => void
+  compact: boolean
+}
+
+const VirtualizedCandidateItem = memo<VirtualizedCandidateItemProps>(({
+  virtualItem,
+  candidate,
+  onSelectCandidate,
+  onMoveStage,
+  onAddNote,
+  compact
+}) => {
+  const handleSelect = useCallback(() => {
+    onSelectCandidate?.(candidate)
+  }, [onSelectCandidate, candidate])
+
+  const handleMoveStage = useCallback((candidateId: string, newStage: Candidate['stage']) => {
+    onMoveStage?.(candidateId, newStage)
+  }, [onMoveStage])
+
+  const handleAddNote = useCallback((candidateId: string) => {
+    onAddNote?.(candidateId)
+  }, [onAddNote])
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: virtualItem.size,
+        transform: `translateY(${virtualItem.start}px)`
+      }}
+    >
+      <div className="p-2 h-full">
+        <CandidateCard
+          candidate={candidate}
+          onSelect={handleSelect}
+          onMoveStage={handleMoveStage}
+          onAddNote={handleAddNote}
+          compact={compact}
+        />
+      </div>
+    </div>
+  )
+}, (prevProps, nextProps) => {
+  // Custom comparison function for better performance
+  return (
+    prevProps.candidate.id === nextProps.candidate.id &&
+    prevProps.candidate.updatedAt === nextProps.candidate.updatedAt &&
+    prevProps.compact === nextProps.compact &&
+    prevProps.virtualItem.start === nextProps.virtualItem.start &&
+    prevProps.virtualItem.size === nextProps.virtualItem.size
+  )
+})
+
+VirtualizedCandidateItem.displayName = 'VirtualizedCandidateItem'
+
 // Performance optimized version with React.memo
-export const MemoizedCandidateList = CandidateList
+export const MemoizedCandidateList = memo(CandidateList)

@@ -74,6 +74,10 @@ export interface ValidationRule {
   minValue?: number
   maxValue?: number
   pattern?: string
+  allowedExtensions?: string[]
+  maxFileSize?: number
+  minSelections?: number
+  maxSelections?: number
 }
 
 export interface ConditionalRule {
@@ -94,6 +98,14 @@ export interface AssessmentResponse {
 export interface QuestionResponse {
   questionId: string
   value: string | string[] | number | File
+}
+
+export interface AssessmentDraft {
+  id: string
+  assessmentId: string
+  candidateId: string
+  responses: Record<string, any>
+  lastSaved: Date
 }
 
 // API Types

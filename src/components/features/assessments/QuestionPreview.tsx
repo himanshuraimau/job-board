@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Eye, EyeOff, RefreshCw } from 'lucide-react'
-import { useResponseHelpers } from '@/stores/assessments'
+import { shouldShowQuestion, validateResponse, getVisibleQuestions } from '@/stores/assessments'
 import { QuestionRenderer } from './QuestionRenderer'
 import type { Assessment, Question } from '@/types'
 
@@ -21,7 +21,7 @@ export const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   const [responses, setResponses] = useState<Record<string, any>>({})
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   
-  const { shouldShowQuestion, validateResponse } = useResponseHelpers()
+  // Using the standalone helper functions
 
   // Reset responses when assessment changes
   useEffect(() => {
@@ -46,7 +46,7 @@ export const QuestionPreview: React.FC<QuestionPreviewProps> = ({
     
     assessment.sections.forEach(section => {
       section.questions.forEach(question => {
-        if (shouldShowQuestion(assessment.id, question, responses)) {
+        if (shouldShowQuestion(question, responses)) {
           const validation = validateResponse(question, responses[question.id])
           if (!validation.isValid && validation.error) {
             errors[question.id] = validation.error
@@ -64,11 +64,7 @@ export const QuestionPreview: React.FC<QuestionPreviewProps> = ({
     setValidationErrors({})
   }
 
-  const visibleQuestions = assessment.sections.flatMap(section =>
-    section.questions.filter(question => 
-      shouldShowQuestion(assessment.id, question, responses)
-    )
-  )
+  const visibleQuestions = getVisibleQuestions(assessment, responses)
 
   const totalQuestions = assessment.sections.reduce((sum, section) => sum + section.questions.length, 0)
   const answeredQuestions = Object.keys(responses).filter(key => {
@@ -118,7 +114,7 @@ export const QuestionPreview: React.FC<QuestionPreviewProps> = ({
 
           {assessment.sections.map(section => {
             const sectionQuestions = section.questions.filter(question =>
-              shouldShowQuestion(assessment.id, question, responses)
+              shouldShowQuestion(question, responses)
             )
 
             if (sectionQuestions.length === 0) return null

@@ -1,11 +1,12 @@
 import Dexie, { type Table } from 'dexie'
-import type { Job, Candidate, Assessment, AssessmentResponse, Note } from '../types'
+import type { Job, Candidate, Assessment, AssessmentResponse, AssessmentDraft, Note } from '../types'
 
 export class TalentFlowDB extends Dexie {
     jobs!: Table<Job>
     candidates!: Table<Candidate>
     assessments!: Table<Assessment>
     assessmentResponses!: Table<AssessmentResponse>
+    assessmentDrafts!: Table<AssessmentDraft>
 
     constructor() {
         super('TalentFlowDB')
@@ -15,7 +16,8 @@ export class TalentFlowDB extends Dexie {
             jobs: '++id, title, status, order, createdAt, updatedAt',
             candidates: '++id, name, email, jobId, stage, createdAt, updatedAt',
             assessments: '++id, jobId, title, createdAt, updatedAt',
-            assessmentResponses: '++id, assessmentId, candidateId, submittedAt'
+            assessmentResponses: '++id, assessmentId, candidateId, submittedAt',
+            assessmentDrafts: '++id, assessmentId, candidateId, lastSaved'
         })
 
         // Add hooks for automatic timestamps
@@ -50,6 +52,14 @@ export class TalentFlowDB extends Dexie {
 
         this.assessmentResponses.hook('creating', (_primKey, obj, _trans) => {
             obj.submittedAt = new Date()
+        })
+
+        this.assessmentDrafts.hook('creating', (_primKey, obj, _trans) => {
+            obj.lastSaved = new Date()
+        })
+
+        this.assessmentDrafts.hook('updating', (modifications, _primKey, _obj, _trans) => {
+            (modifications as any).lastSaved = new Date()
         })
     }
 }
@@ -253,6 +263,46 @@ export class DatabaseService {
         return createdResponse
     }
 
+    // Assessment Draft CRUD operations
+    static async saveDraft(assessmentId: string, candidateId: string, responses: Record<string, any>): Promise<AssessmentDraft> {
+        const draftId = `${assessmentId}-${candidateId}`
+        
+        const existingDraft = await db.assessmentDrafts.get(draftId)
+        
+        const draftData: AssessmentDraft = {
+            id: draftId,
+            assessmentId,
+            candidateId,
+            responses,
+            lastSaved: new Date()
+        }
+
+        if (existingDraft) {
+            await db.assessmentDrafts.update(draftId, {
+                responses,
+                lastSaved: new Date()
+            })
+        } else {
+            await db.assessmentDrafts.add(draftData)
+        }
+
+        return draftData
+    }
+
+    static async getDraft(assessmentId: string, candidateId: string): Promise<AssessmentDraft | undefined> {
+        const draftId = `${assessmentId}-${candidateId}`
+        return await db.assessmentDrafts.get(draftId)
+    }
+
+    static async deleteDraft(assessmentId: string, candidateId: string): Promise<void> {
+        const draftId = `${assessmentId}-${candidateId}`
+        await db.assessmentDrafts.delete(draftId)
+    }
+
+    static async getDraftsByCandidate(candidateId: string): Promise<AssessmentDraft[]> {
+        return await db.assessmentDrafts.where('candidateId').equals(candidateId).toArray()
+    }
+
     // Database initialization and seeding
     static async initializeDatabase(): Promise<void> {
         try {
@@ -279,11 +329,12 @@ export class DatabaseService {
 
     // Utility methods
     static async clearAllData(): Promise<void> {
-        await db.transaction('rw', [db.jobs, db.candidates, db.assessments, db.assessmentResponses], async () => {
+        await db.transaction('rw', [db.jobs, db.candidates, db.assessments, db.assessmentResponses, db.assessmentDrafts], async () => {
             await db.jobs.clear()
             await db.candidates.clear()
             await db.assessments.clear()
             await db.assessmentResponses.clear()
+            await db.assessmentDrafts.clear()
         })
     }
 

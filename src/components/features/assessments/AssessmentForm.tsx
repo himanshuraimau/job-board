@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, CheckCircle, Clock, ArrowLeft, ArrowRight } from 'lucide-react'
-import { useAssessmentStore, useResponseHelpers } from '@/stores/assessments'
+import { useAssessmentStore, useResponseHelpers, shouldShowQuestion, validateResponse, getVisibleQuestions } from '@/stores/assessments'
 import { QuestionRenderer } from './QuestionRenderer'
+import { DatabaseService } from '@/services/database'
 import type { Assessment, Question, QuestionResponse } from '@/types'
 
 interface AssessmentFormProps {
@@ -38,24 +39,38 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  const { shouldShowQuestion, validateResponse, getVisibleQuestions } = useResponseHelpers()
-
-  // Load existing responses if any
+  // Load existing draft responses on mount
   useEffect(() => {
-    // In a real app, you'd load existing responses from the store
-    // For now, we'll start with empty responses
+    const loadDraft = async () => {
+      try {
+        const draft = await DatabaseService.getDraft(assessmentId, candidateId)
+        if (draft && draft.responses) {
+          setResponses(draft.responses)
+          setHasUnsavedChanges(false)
+        }
+      } catch (error) {
+        console.error('Failed to load draft:', error)
+      }
+    }
+
+    loadDraft()
   }, [assessmentId, candidateId])
 
-  // Auto-save functionality
+  // Auto-save functionality to local storage
   useEffect(() => {
-    if (hasUnsavedChanges && onSave) {
-      const timeoutId = setTimeout(() => {
-        handleSave()
+    if (hasUnsavedChanges) {
+      const timeoutId = setTimeout(async () => {
+        try {
+          await DatabaseService.saveDraft(assessmentId, candidateId, responses)
+          setHasUnsavedChanges(false)
+        } catch (error) {
+          console.error('Failed to save draft:', error)
+        }
       }, 2000) // Auto-save after 2 seconds of inactivity
 
       return () => clearTimeout(timeoutId)
     }
-  }, [responses, hasUnsavedChanges, onSave])
+  }, [responses, hasUnsavedChanges, assessmentId, candidateId])
 
   if (loading) {
     return (
@@ -99,7 +114,7 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
     let hasErrors = false
 
     currentSection.questions.forEach(question => {
-      if (shouldShowQuestion(assessmentId, question, responses)) {
+      if (shouldShowQuestion(question, responses)) {
         const validation = validateResponse(question, responses[question.id])
         if (!validation.isValid && validation.error) {
           errors[question.id] = validation.error
@@ -118,7 +133,7 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
 
     assessment.sections.forEach(section => {
       section.questions.forEach(question => {
-        if (shouldShowQuestion(assessmentId, question, responses)) {
+        if (shouldShowQuestion(question, responses)) {
           const validation = validateResponse(question, responses[question.id])
           if (!validation.isValid && validation.error) {
             errors[question.id] = validation.error
@@ -133,17 +148,26 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
   }
 
   const handleSave = async () => {
-    if (!onSave) return
+    try {
+      // Save to local storage first
+      await DatabaseService.saveDraft(assessmentId, candidateId, responses)
+      
+      // If external onSave handler provided, call it too
+      if (onSave) {
+        const questionResponses: QuestionResponse[] = Object.entries(responses)
+          .filter(([_, value]) => value !== undefined && value !== '' && value !== null)
+          .map(([questionId, value]) => ({
+            questionId,
+            value
+          }))
 
-    const questionResponses: QuestionResponse[] = Object.entries(responses)
-      .filter(([_, value]) => value !== undefined && value !== '' && value !== null)
-      .map(([questionId, value]) => ({
-        questionId,
-        value
-      }))
-
-    await onSave(questionResponses)
-    setHasUnsavedChanges(false)
+        await onSave(questionResponses)
+      }
+      
+      setHasUnsavedChanges(false)
+    } catch (error) {
+      console.error('Failed to save progress:', error)
+    }
   }
 
   const handleNextSection = () => {
@@ -185,6 +209,8 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
         })
       }
 
+      // Delete the draft after successful submission
+      await DatabaseService.deleteDraft(assessmentId, candidateId)
       setHasUnsavedChanges(false)
     } catch (error) {
       console.error('Failed to submit assessment:', error)
@@ -195,7 +221,7 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
 
   // Calculate progress
   const allQuestions = assessment.sections.flatMap(section => section.questions)
-  const visibleQuestions = getVisibleQuestions(assessmentId, responses)
+  const visibleQuestions = getVisibleQuestions(assessment, responses)
   const answeredQuestions = visibleQuestions.filter(question => {
     const value = responses[question.id]
     return value !== undefined && value !== '' && value !== null
@@ -206,7 +232,7 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
 
   const currentSection = assessment.sections[currentSectionIndex]
   const currentSectionQuestions = currentSection?.questions.filter(question =>
-    shouldShowQuestion(assessmentId, question, responses)
+    shouldShowQuestion(question, responses)
   ) || []
 
   const isLastSection = currentSectionIndex === assessment.sections.length - 1

@@ -250,6 +250,34 @@ export const handlers = [
     return HttpResponse.json({ success: true })
   }),
 
+  // Alternative PATCH endpoint for job reordering
+  http.patch('/api/jobs/:id/reorder', async ({ params, request }) => {
+    await simulateLatency()
+    
+    if (simulateFailure()) {
+      return HttpResponse.json(
+        { error: 'Failed to reorder job' },
+        { status: 500 }
+      )
+    }
+    
+    const { newOrder } = await request.json() as { newOrder: number }
+    const jobIndex = jobs.findIndex(j => j.id === params.id)
+    
+    if (jobIndex === -1) {
+      return HttpResponse.json(
+        { error: 'Job not found' },
+        { status: 404 }
+      )
+    }
+    
+    // Update the specific job's order
+    jobs[jobIndex].order = newOrder
+    jobs[jobIndex].updatedAt = new Date()
+    
+    return HttpResponse.json(jobs[jobIndex])
+  }),
+
   // Candidates API
   http.get('/api/candidates', async ({ request }) => {
     await simulateLatency()
@@ -400,6 +428,33 @@ export const handlers = [
     candidates[candidateIndex].updatedAt = new Date()
     
     return HttpResponse.json(newNote, { status: 201 })
+  }),
+
+  // Get candidate timeline
+  http.get('/api/candidates/:id/timeline', async ({ params }) => {
+    await simulateLatency()
+    
+    if (simulateFailure()) {
+      return HttpResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      )
+    }
+    
+    const candidate = candidates.find(c => c.id === params.id)
+    if (!candidate) {
+      return HttpResponse.json(
+        { error: 'Candidate not found' },
+        { status: 404 }
+      )
+    }
+    
+    // Return sorted timeline (newest first)
+    const sortedTimeline = [...candidate.timeline].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    )
+    
+    return HttpResponse.json(sortedTimeline)
   }),
 
   // Assessments API

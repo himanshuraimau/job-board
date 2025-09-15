@@ -8,7 +8,12 @@ export const worker = setupWorker(...handlers)
 export async function startMocking() {
   if (process.env.NODE_ENV === 'development') {
     await worker.start({
-      onUnhandledRequest: 'warn',
+      onUnhandledRequest: (req, print) => {
+        // Only warn about unhandled API requests, not React Router navigation
+        if (req.url.pathname.startsWith('/api')) {
+          print.warning()
+        }
+      },
       serviceWorker: {
         url: '/mockServiceWorker.js'
       }

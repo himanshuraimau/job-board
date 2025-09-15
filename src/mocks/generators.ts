@@ -167,25 +167,38 @@ export function generateSection(order: number): Section {
 
 export function generateAssessment(jobId: string): Assessment {
   const sectionCount = faker.number.int({ min: 2, max: 5 })
+  const sections = Array.from({ length: sectionCount }, (_, index) => 
+    generateSection(index + 1)
+  )
+
+  // Ensure we have at least 10 questions total
+  const totalQuestions = sections.reduce((sum, section) => sum + section.questions.length, 0)
+  if (totalQuestions < 10) {
+    // Add more questions to the first section to reach the minimum
+    const questionsNeeded = 10 - totalQuestions
+    const additionalQuestions = Array.from({ length: questionsNeeded }, (_, index) => 
+      generateQuestion(sections[0].questions.length + index + 1)
+    )
+    sections[0].questions.push(...additionalQuestions)
+  }
   
   return {
     id: faker.string.uuid(),
     jobId,
     title: `Assessment for ${faker.person.jobTitle()}`,
     description: faker.lorem.paragraph(),
-    sections: Array.from({ length: sectionCount }, (_, index) => 
-      generateSection(index + 1)
-    ),
+    sections,
     createdAt: faker.date.past({ years: 1 }),
     updatedAt: faker.date.recent({ days: 30 })
   }
 }
 
 export function generateAssessments(jobIds: string[]): Assessment[] {
-  // Generate assessments for random subset of jobs
+  // Ensure we have at least 3 assessments as required
+  const minAssessments = 3
   const jobsWithAssessments = faker.helpers.arrayElements(
     jobIds, 
-    { min: Math.min(3, jobIds.length), max: jobIds.length }
+    { min: Math.min(minAssessments, jobIds.length), max: Math.min(jobIds.length, 8) }
   )
   
   return jobsWithAssessments.map(generateAssessment)
