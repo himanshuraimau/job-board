@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback } from 'react'
 import { SearchInput } from '@/components/forms'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,33 +33,26 @@ export function CandidateFilters({
   candidateCount = 0,
   className = ''
 }: CandidateFiltersProps) {
-  const [searchValue, setSearchValue] = useState(filters.search || '')
+  const handleSearchChange = useCallback((value: string) => {
+    const trimmedValue = value.trim()
+    onFiltersChange({ search: trimmedValue || undefined })
+  }, [onFiltersChange])
 
-  // Sync search value with filters
-  useEffect(() => {
-    setSearchValue(filters.search || '')
-  }, [filters.search])
-
-  const handleSearchChange = (value: string) => {
-    setSearchValue(value)
-    onFiltersChange({ search: value || undefined })
-  }
-
-  const handleStageChange = (stage: string) => {
+  const handleStageChange = useCallback((stage: string) => {
     if (stage === 'all') {
       onFiltersChange({ stage: undefined })
     } else {
       onFiltersChange({ stage: stage as Candidate['stage'] })
     }
-  }
+  }, [onFiltersChange])
 
-  const handleJobChange = (jobId: string) => {
+  const handleJobChange = useCallback((jobId: string) => {
     if (jobId === 'all') {
       onFiltersChange({ jobId: undefined })
     } else {
       onFiltersChange({ jobId })
     }
-  }
+  }, [onFiltersChange])
 
   const hasActiveFilters = !!(filters.search || filters.stage || filters.jobId)
 
@@ -83,7 +76,7 @@ export function CandidateFilters({
           <label className="text-sm font-medium">Search</label>
           <SearchInput
             placeholder="Search by name or email..."
-            value={searchValue}
+            value={filters.search || ''}
             onSearch={handleSearchChange}
             className="w-full"
           />

@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { SearchInput } from '@/components/forms/SearchInput'
 import { TagInput } from '@/components/forms/TagInput'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -42,6 +43,10 @@ export function JobFilters({
   onClearFilters, 
   className 
 }: JobFiltersProps) {
+  const handleSearchChange = useCallback((search: string) => {
+    onFiltersChange({ search: search || undefined })
+  }, [onFiltersChange])
+
   const hasActiveFilters = Boolean(
     filters.search || 
     filters.status || 
@@ -57,9 +62,9 @@ export function JobFilters({
             <label className="text-sm font-medium">Search</label>
             <SearchInput
               value={filters.search || ''}
-              onSearch={(search) => onFiltersChange({ search: search || undefined })}
+              onSearch={handleSearchChange}
               placeholder="Search jobs by title..."
-              debounceMs={300}
+              enableAutoSearch={false}
             />
           </div>
 

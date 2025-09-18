@@ -38,6 +38,14 @@ export function CandidatesPage() {
     }
   }, []) // Empty dependency array - only run on mount
 
+  // Fetch candidates when filters change (but not on initial mount)
+  useEffect(() => {
+    // Skip initial mount and only fetch when we have meaningful filters
+    if (allCandidates.length > 0) {
+      fetchCandidates()
+    }
+  }, [filters, fetchCandidates]) // Depend on filters to trigger refetch
+
   const handleSelectCandidate = useCallback((candidate: any) => {
     navigate(`/candidates/${candidate.id}`)
   }, [navigate])
@@ -57,14 +65,7 @@ export function CandidatesPage() {
 
   const handleFiltersChange = useCallback((newFilters: Partial<CandidateFiltersType>) => {
     setFilters(newFilters)
-    // Simple timeout to allow state to update, then fetch
-    setTimeout(() => {
-      const currentStore = useCandidateStore.getState()
-      if (!currentStore.loading) {
-        currentStore.fetchCandidates()
-      }
-    }, 100)
-  }, []) // Empty deps - using store getState instead
+  }, [setFilters])
 
   const handleClearFilters = useCallback(() => {
     setFilters({
@@ -72,14 +73,7 @@ export function CandidatesPage() {
       stage: undefined,
       jobId: undefined
     })
-    // Simple timeout to allow state to update, then fetch
-    setTimeout(() => {
-      const currentStore = useCandidateStore.getState()
-      if (!currentStore.loading) {
-        currentStore.fetchCandidates()
-      }
-    }, 100)
-  }, []) // Empty deps - using store getState instead
+  }, [setFilters])
 
   if (error) {
     return (

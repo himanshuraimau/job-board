@@ -1,3 +1,4 @@
+import React from 'react'
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import type { Candidate, CandidateStore, Note, TimelineEvent } from '@/types'
@@ -16,7 +17,7 @@ export const useCandidateStore = create<CandidateStoreState>()(
     loading: false,
     error: null,
     filters: {
-      search: '',
+      search: undefined,
       stage: undefined,
       jobId: undefined
     },
@@ -335,16 +336,19 @@ export const useCandidateById = (id: string) =>
     state.candidates.find(candidate => candidate.id === id)
   )
 
-// Search functionality with proper memoization
-export const useFilteredCandidates = () => 
-  useCandidateStore(state => {
-    const { candidates, filters } = state
-    let filtered = candidates
+// Search functionality - Simple implementation to avoid infinite loops
+export const useFilteredCandidates = () => {
+  const candidates = useCandidatesData()
+  const filters = useCandidatesFilters()
+  
+  // Use useMemo from React to cache the filtered results
+  const filtered = React.useMemo(() => {
+    let result = candidates
 
     // Apply search filter
-    if (filters.search) {
-      const searchTerm = filters.search.toLowerCase()
-      filtered = filtered.filter(candidate => 
+    if (filters.search && filters.search.trim()) {
+      const searchTerm = filters.search.toLowerCase().trim()
+      result = result.filter(candidate => 
         candidate.name.toLowerCase().includes(searchTerm) ||
         candidate.email.toLowerCase().includes(searchTerm)
       )
@@ -352,16 +356,19 @@ export const useFilteredCandidates = () =>
 
     // Apply stage filter
     if (filters.stage) {
-      filtered = filtered.filter(candidate => candidate.stage === filters.stage)
+      result = result.filter(candidate => candidate.stage === filters.stage)
     }
 
     // Apply job filter
     if (filters.jobId) {
-      filtered = filtered.filter(candidate => candidate.jobId === filters.jobId)
+      result = result.filter(candidate => candidate.jobId === filters.jobId)
     }
 
-    return filtered
-  })
+    return result
+  }, [candidates, filters.search, filters.stage, filters.jobId])
+  
+  return filtered
+}
 
 // Kanban board data
 export const useKanbanData = () => 

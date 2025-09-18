@@ -35,11 +35,6 @@ export function JobsPageWithQuery() {
     localStorage.removeItem('jobs-current-page')
   }, [])
 
-  // Debug effect to log pagination changes
-  useEffect(() => {
-    console.log('Page changed to:', currentPage)
-  }, [currentPage])
-
   // React Query hooks
   const { 
     data: jobsResponse, 
