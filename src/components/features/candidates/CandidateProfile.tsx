@@ -17,7 +17,7 @@ import {
   Settings,
   MoreHorizontal
 } from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import { formatDateSafe } from '@/lib/utils'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 

@@ -5,13 +5,12 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { TagInput } from '@/components/forms/TagInput'
 import { FormField } from '@/components/forms/FormField'
-import { X, Loader2, AlertTriangle } from 'lucide-react'
+import { X, Loader2 } from 'lucide-react'
 import { useJobsData } from '@/stores/jobs'
 import type { Job } from '@/types'
 
@@ -189,7 +188,7 @@ export const JobForm: React.FC<JobFormProps> = ({
             <FormField 
               label="Slug" 
               error={errors.slug?.message}
-              helpText="Used in the URL. Only lowercase letters, numbers, and hyphens allowed."
+              description="Used in the URL. Only lowercase letters, numbers, and hyphens allowed."
               required
             >
               <Input
@@ -223,7 +222,7 @@ export const JobForm: React.FC<JobFormProps> = ({
             <FormField 
               label="Description" 
               error={errors.description?.message}
-              helpText="Optional job description (max 5000 characters)"
+              description="Optional job description (max 5000 characters)"
             >
               <Textarea
                 {...register('description')}
@@ -237,7 +236,7 @@ export const JobForm: React.FC<JobFormProps> = ({
             <FormField 
               label="Tags" 
               error={errors.tags?.message}
-              helpText="Add relevant tags (max 10 tags)"
+              description="Add relevant tags (max 10 tags)"
             >
               <div className="space-y-2">
                 <TagInput

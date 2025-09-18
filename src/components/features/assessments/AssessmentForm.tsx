@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, CheckCircle, Clock, ArrowLeft, ArrowRight } from 'lucide-react'
-import { useAssessmentStore, useResponseHelpers, shouldShowQuestion, validateResponse, getVisibleQuestions } from '@/stores/assessments'
+import { useAssessmentStore, shouldShowQuestion, validateResponse, getVisibleQuestions } from '@/stores/assessments'
 import { QuestionRenderer } from './QuestionRenderer'
 import { DatabaseService } from '@/services/database'
-import type { Assessment, Question, QuestionResponse } from '@/types'
+import type { QuestionResponse } from '@/types'
 
 interface AssessmentFormProps {
   assessmentId: string

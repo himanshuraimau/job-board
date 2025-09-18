@@ -128,19 +128,22 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
     onChange?.()
   }
 
-  const handleValidationChange = (field: keyof ValidationRule, value: string | number) => {
-    const newValidation = { ...validation }
-    
-    if (value === '' || value === undefined) {
-      delete newValidation[field]
-    } else {
-      newValidation[field] = value as any
-    }
-    
+    const handleValidationChange = (field: keyof ValidationRule, value: string | number) => {
+    const newValidation = { ...validation, [field]: value }
+    // Clean up undefined/empty values
+    Object.keys(newValidation).forEach(key => {
+      if (newValidation[key as keyof ValidationRule] === undefined || newValidation[key as keyof ValidationRule] === '') {
+        delete newValidation[key as keyof ValidationRule]
+      }
+    })
     setValidation(newValidation)
     updateQuestion(jobId, sectionId, question.id, { 
       validation: Object.keys(newValidation).length > 0 ? newValidation : undefined 
     })
+    onChange?.()
+  }
+
+  const handleQuestionChange = () => {
     onChange?.()
   }
 
@@ -311,7 +314,10 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
                             <Input
                               type="number"
                               value={validation.minLength || ''}
-                              onChange={(e) => handleValidationChange('minLength', parseInt(e.target.value) || undefined)}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value)
+                                handleValidationChange('minLength', isNaN(value) ? 0 : value)
+                              }}
                               placeholder="0"
                               min="0"
                             />
@@ -321,7 +327,10 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
                             <Input
                               type="number"
                               value={validation.maxLength || ''}
-                              onChange={(e) => handleValidationChange('maxLength', parseInt(e.target.value) || undefined)}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value)
+                                handleValidationChange('maxLength', isNaN(value) ? 0 : value)
+                              }}
                               placeholder="No limit"
                               min="1"
                             />
@@ -345,7 +354,10 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
                           <Input
                             type="number"
                             value={validation.minValue || ''}
-                            onChange={(e) => handleValidationChange('minValue', parseFloat(e.target.value) || undefined)}
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value)
+                              handleValidationChange('minValue', isNaN(value) ? 0 : value)
+                            }}
                             placeholder="No minimum"
                           />
                         </div>
@@ -354,7 +366,10 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
                           <Input
                             type="number"
                             value={validation.maxValue || ''}
-                            onChange={(e) => handleValidationChange('maxValue', parseFloat(e.target.value) || undefined)}
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value)
+                              handleValidationChange('maxValue', isNaN(value) ? 0 : value)
+                            }}
                             placeholder="No maximum"
                           />
                         </div>

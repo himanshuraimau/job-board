@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Eye, EyeOff, RefreshCw } from 'lucide-react'
 import { shouldShowQuestion, validateResponse, getVisibleQuestions } from '@/stores/assessments'
 import { QuestionRenderer } from './QuestionRenderer'
-import type { Assessment, Question } from '@/types'
+import type { Assessment } from '@/types'
 
 interface QuestionPreviewProps {
   assessment: Assessment

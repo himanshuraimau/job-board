@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect,useRef } from 'react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { Search, X } from 'lucide-react'

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,7 +11,7 @@ import { Plus, Save, Eye } from 'lucide-react'
 import { useAssessmentStore, useAssessmentHelpers } from '@/stores/assessments'
 import { SectionEditor } from './SectionEditor'
 import { QuestionPreview } from './QuestionPreview'
-import type { Assessment, Section } from '@/types'
+import type { Assessment } from '@/types'
 
 interface AssessmentBuilderProps {
   jobId: string

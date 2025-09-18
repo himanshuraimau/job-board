@@ -39,10 +39,10 @@ export function CandidateList({
     overscan: 10, // Increased overscan for better performance with large datasets
     getItemKey: (index) => candidates[index]?.id || index,
     // Enable smooth scrolling for better UX
-    scrollToFn: (offset, behavior = 'auto') => {
+    scrollToFn: (offset, options) => {
       parentRef.current?.scrollTo({
         top: offset,
-        behavior
+        behavior: options.behavior || 'auto'
       })
     }
   })

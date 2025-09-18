@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import type { Note, Candidate } from '@/types'
 import { MessageSquare, Send, User, Calendar } from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import { formatDateSafe } from '@/lib/utils'
 
 interface NotesSectionProps {

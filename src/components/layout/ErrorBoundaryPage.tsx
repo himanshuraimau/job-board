@@ -1,4 +1,3 @@
-import React from 'react'
 import { useRouteError, isRouteErrorResponse } from 'react-router-dom'
 import { AppLayout } from './AppLayout'
 import { PageContainer } from './PageContainer'
