@@ -48,12 +48,7 @@ export function Header({ className }: HeaderProps) {
               </Button>
             ))}
           </nav>
-          
-          <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm">
-              Settings
-            </Button>
-          </div>
+        
         </div>
       </div>
     </header>

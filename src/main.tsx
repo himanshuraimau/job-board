@@ -4,12 +4,9 @@ import './index.css'
 import App from './App.tsx'
 import { DatabaseService } from './services/database'
 
-// Initialize MSW in development
+// Initialize MSW for all environments (frontend-only app)
 async function enableMocking() {
-  if (process.env.NODE_ENV !== 'development') {
-    return
-  }
-
+  // Always enable mocking since this is a frontend-only demo application
   const { startMocking } = await import('./mocks/browser')
   return startMocking()
 }
