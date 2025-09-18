@@ -65,6 +65,8 @@ export function JobsPage() {
 
   const handlePageChange = (page: number) => {
     setPage(page)
+    // Scroll to top when changing pages for better UX
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleFormSubmit = async (data: any) => {

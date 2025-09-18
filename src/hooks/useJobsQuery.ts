@@ -5,7 +5,7 @@ import { queryKeys } from '@/lib/queryClient'
 import type { Job, JobFilters, PaginatedResponse } from '@/types'
 
 // Get jobs list with pagination and filters
-export function useJobsQuery(filters?: JobFilters, page = 1, pageSize = 10) {
+export function useJobsQuery(filters?: JobFilters, page = 1, pageSize = 8) {
   return useQuery({
     queryKey: queryKeys.jobsList({ ...filters, page, pageSize }),
     queryFn: async (): Promise<PaginatedResponse<Job>> => {
@@ -16,6 +16,8 @@ export function useJobsQuery(filters?: JobFilters, page = 1, pageSize = 10) {
       })
     },
     enabled: true,
+    staleTime: 1000, // Consider data stale after 1 second
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   })
 }
 
@@ -40,11 +42,24 @@ export function useCreateJobMutation() {
       return apiClient.createJob(jobData)
     },
     onSuccess: (newJob) => {
-      // Invalidate and refetch jobs list (but preserve current pagination)
-      queryClient.refetchQueries({ 
-        queryKey: queryKeys.jobs(),
-        type: 'active'
-      })
+      // Only update the current cache optimistically instead of invalidating all queries
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.jobsList() },
+        (oldData: PaginatedResponse<Job> | undefined) => {
+          if (!oldData) return oldData
+          
+          // Add new job to the first page if we're on page 1
+          // Otherwise, just increase the total count
+          return {
+            ...oldData,
+            data: oldData.pagination.page === 1 ? [newJob, ...oldData.data] : oldData.data,
+            pagination: {
+              ...oldData.pagination,
+              total: oldData.pagination.total + 1
+            }
+          }
+        }
+      )
       
       // Optimistically add to cache
       queryClient.setQueryData(queryKeys.job(newJob.id), newJob)
@@ -114,11 +129,19 @@ export function useUpdateJobMutation() {
       // Update caches with server response
       queryClient.setQueryData(queryKeys.job(updatedJob.id), updatedJob)
       
-      // Refetch lists to ensure consistency (preserve pagination)
-      queryClient.refetchQueries({ 
-        queryKey: queryKeys.jobs(),
-        type: 'active'
-      })
+      // Update job in all list caches without invalidating
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.jobsList() },
+        (oldData: PaginatedResponse<Job> | undefined) => {
+          if (!oldData) return oldData
+          return {
+            ...oldData,
+            data: oldData.data.map(job => 
+              job.id === updatedJob.id ? updatedJob : job
+            )
+          }
+        }
+      )
       
       // Show success toast
       toast.success('Job updated successfully', {
@@ -175,11 +198,21 @@ export function useDeleteJobMutation() {
       // Remove from cache
       queryClient.removeQueries({ queryKey: queryKeys.job(jobId) })
       
-      // Refetch lists (preserve pagination)
-      queryClient.refetchQueries({ 
-        queryKey: queryKeys.jobs(),
-        type: 'active'
-      })
+      // Update all list caches without invalidating to preserve pagination
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.jobsList() },
+        (oldData: PaginatedResponse<Job> | undefined) => {
+          if (!oldData) return oldData
+          return {
+            ...oldData,
+            data: oldData.data.filter(job => job.id !== jobId),
+            pagination: {
+              ...oldData.pagination,
+              total: Math.max(0, oldData.pagination.total - 1)
+            }
+          }
+        }
+      )
       
       // Show success toast
       toast.success('Job deleted successfully')
@@ -241,10 +274,21 @@ export function useReorderJobsMutation() {
       })
     },
     onSuccess: () => {
-      // Refetch to ensure consistency with server (preserve pagination)
-      queryClient.refetchQueries({ 
-        queryKey: queryKeys.jobs(),
-        type: 'active'
+      // Update all list caches without invalidating to preserve pagination  
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.jobsList() },
+        (oldData: PaginatedResponse<Job> | undefined) => {
+          if (!oldData) return oldData
+          // For reorder, we need fresh data from server, so just mark as stale
+          return oldData
+        }
+      )
+      
+      // Mark queries as stale so they refetch in background
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.jobsList(),
+        exact: false,
+        refetchType: 'none' // Don't trigger immediate refetch
       })
       
       // Show success toast

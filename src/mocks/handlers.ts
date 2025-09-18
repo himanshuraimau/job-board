@@ -118,7 +118,7 @@ export const handlers = [
     
     const url = new URL(request.url)
     const page = parseInt(url.searchParams.get('page') || '1')
-    const pageSize = parseInt(url.searchParams.get('pageSize') || '10')
+    const pageSize = parseInt(url.searchParams.get('pageSize') || '8')
     const search = url.searchParams.get('search') || undefined
     const status = url.searchParams.get('status') as 'active' | 'archived' | undefined
     const tags = url.searchParams.get('tags')?.split(',').filter(Boolean) || undefined

@@ -24,7 +24,7 @@ export const useJobStore = create<JobStoreState>()(
     },
     pagination: {
       page: 1,
-      pageSize: 10,
+      pageSize: 8,
       total: 0
     },
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { JobList, JobFilters, JobForm } from '@/components/features/jobs'
@@ -27,12 +27,18 @@ export function JobsPageWithQuery() {
     sort: 'order',
     sortDirection: 'asc'
   })
-  const [currentPage, setCurrentPage] = useState(() => {
-    // Initialize page from localStorage to persist across refreshes/re-renders
-    const savedPage = localStorage.getItem('jobs-current-page')
-    return savedPage ? parseInt(savedPage, 10) : 1
-  })
+  const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 8 // Set to 8 to ensure pagination with 25+ jobs
+
+  // Clean up any stale pagination data on component mount
+  useEffect(() => {
+    localStorage.removeItem('jobs-current-page')
+  }, [])
+
+  // Debug effect to log pagination changes
+  useEffect(() => {
+    console.log('Page changed to:', currentPage)
+  }, [currentPage])
 
   // React Query hooks
   const { 
@@ -104,8 +110,8 @@ export function JobsPageWithQuery() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    // Persist page to localStorage to prevent resets
-    localStorage.setItem('jobs-current-page', page.toString())
+    // Scroll to top when changing pages for better UX
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleFormSubmit = async (data: any) => {
