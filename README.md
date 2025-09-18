@@ -28,10 +28,10 @@ A complete hiring platform built with React and TypeScript. Manage jobs, track c
 # Get started in 3 steps
 git clone [your-repo-url]
 cd job-board
-npm install
+pnpm install
 
 # Start the app
-npm run dev
+pnpm dev
 # Opens at http://localhost:5173
 ```
 
@@ -127,9 +127,9 @@ src/
 
 ### **Development**
 ```bash
-npm run dev     # Start development server
-npm run build   # Build for production
-npm run preview # Preview production build
+pnpm dev     # Start development server
+pnpm build   # Build for production
+pnpm preview # Preview production build
 ```
 
 ### **Production**
